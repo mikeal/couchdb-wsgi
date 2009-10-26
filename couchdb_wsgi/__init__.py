@@ -1,4 +1,6 @@
 import sys
+import traceback
+from StringIO import StringIO
 
 try:
     # Python 2.6
@@ -31,49 +33,85 @@ import urlencoding
 }
 """
 
-class CouchDBWSGIParser(object):
-    def __init__(self, application):
-        pass
-
-    def couch_to_environ(self, cdict):
+class CouchDBWSGIHandler(object):
+    def __init__(self, request):
+        self.request = request
+        self.start_response_called = False
+        
+    @property
+    def environ(self):
+        environ = {}
+        cdict = self.request
+        ###--- CouchDB variables ---###
+        environ['couchdb.request'] = cdict
+        environ['couchdb.info'] = cdict['info']
+        
+        ###--- Environ variables from CGI ---###
         if cdict['body'] == 'undefined':
             cdict['body'] = ''
         environ = {}
         environ['REQUEST_METHOD'] = cdict['verb']
-        environ['COUCHDB_INFO'] = cdict['info']
+        environ['CONTENT_LENGTH'] = len(cdict['body'])
+        
         for header, value in cdict['headers'].items():
             environ['HTTP_'+header.upper().replace('-','_')] = value
-        # Reconstruct the path    
-        path = '/'.join(cdict['path'])    
+            
+        # Reconstruct the path and script    
+        script, path = cdict['path'][:2], cdict['path'][2:]
+        if len(path) is not 0:
+            path = '/' + '/'.join(path) 
+        else: path = ''
+        script = '/' + '/'.join(script)
+        
         if cdict['query']:
-            qs = urlencoding.compose_qs(cdict['query'])
-            path + '?' + qs
+            environ['QUERY_STRING'] = urlencoding.compose_qs(cdict['query'])        
         
+        # Unclear whether this works with port 80
+        environ['SERVER_NAME'], environ['SERVER_PORT'] = environ['HTTP_HOST'].split(':')
+        environ['SERVER_PORT'] = int(environ['SERVER_PORT'])
+        # Faking, version isn't specified yet
+        environ['HTTP_VERSION'] = 'HTTP/1.1'
         
+        ###--- WSGI specific variables --##
+        environ['wsgi.version'] = (1,0)
+        environ['wsgi.input'] = StringIO(cdict['body'])
+        # Faking, scheme isn't currently available
+        environ['wsgi.url_scheme'] = 'http'
+        environ['wsgi.errors'] = StringIO()
+        # Not actually sure about these ones :)
+        environ['wsgi.multithread'] = False
+        environ['wsgi.multiprocess'] = True
+        environ['wsgi.run_once'] = True
         
-    def process_line(self, line):
-        cdict = json.loads(line)    
-        
-        environ = couch_to_environ(cdict)
         return environ
+    
+    def start_response(self, status, response_headers, exc_info=None):
+        self.code = int(status.split(' ')[0])
+        self.headers = dict(response_headers)
+        self.start_response_called = True
+
+class CouchDBWSGIParser(object):
+    def __init__(self, application):
+        self.application = application
         
-    def run(self):
-        pass
-
-def requests():
-    # 'for line in sys.stdin' won't work here
-    line = sys.stdin.readline()
-    while line:
-        yield json.loads(line)
+    def requests(self):
         line = sys.stdin.readline()
-
-def respond(code=200, data={}, headers={}):
-    sys.stdout.write("%s\n" % json.dumps({"code": code, "json": data, "headers": headers}))
-    sys.stdout.flush()
-
-def main():
-    for req in requests():
-        respond(data={"qs": req["query"]})
-
-if __name__ == "__main__":
-    main()
+        while line:
+            yield json.loads(line)
+            line = sys.stdin.readline()
+    
+    def handle_request(self, request):
+        r = CouchDBWSGIHandler(request)
+        try:
+            response = self.application(r.environ, r.start_response)
+        except:
+            r.status = 500
+            response = traceback.format_exc()
+            r.headers = {'content-type':'text/plain'}
+            
+        sys.stdout.write(json.dumps({'code':r.code, 'body':response, 'headers':r.headers})+'\n')
+        sys.stdout.flush()
+    
+    def run(self):
+        for req in self.requests():
+            self.handle_request(req)
