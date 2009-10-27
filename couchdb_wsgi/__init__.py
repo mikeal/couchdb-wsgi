@@ -41,6 +41,9 @@ class CouchDBWSGIHandler(object):
         else: path = ''
         script = '/' + '/'.join(script)
         
+        environ['SCRIPT_NAME'] = script
+        environ['PATH_INFO'] = path
+        
         if cdict['query']:
             environ['QUERY_STRING'] = urlencoding.compose_qs(cdict['query'])        
         
@@ -83,11 +86,11 @@ class CouchDBWSGIParser(object):
         try:
             response = self.application(r.environ, r.start_response)
         except:
-            r.status = 500
+            r.code = 500
             response = traceback.format_exc()
             r.headers = {'content-type':'text/plain'}
             
-        sys.stdout.write(json.dumps({'code':r.code, 'body':response, 'headers':r.headers})+'\n')
+        sys.stdout.write(json.dumps({'code':r.code, 'body':''.join(response), 'headers':r.headers})+'\n')
         sys.stdout.flush()
     
     def run(self):
