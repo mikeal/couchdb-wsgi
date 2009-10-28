@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import couchdb_wsgi
 from webenv import Response
 from webenv.rest import RestApplication
