@@ -1,1 +1,474 @@
-My GitHub Page
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>couchquery – A Python library for CouchDB &mdash; couchquery v0.3 documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.3',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="couchquery v0.3 documentation" href="" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li><a href="">couchquery v0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-couchquery">
+<h1>couchquery &#8211; A Python library for CouchDB<a class="headerlink" href="#module-couchquery" title="Permalink to this headline">¶</a></h1>
+<p>CouchDB is not a relational database. The purpose of couchquery is to provide a simple, flexible and dynamic interface for creating, updating and deleting documents and working with views.</p>
+<ul class="simple">
+</ul>
+<div class="section" id="installation">
+<span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p><cite>couchquery</cite> requires <a class="reference external" href="http://pypi.python.org/pypi/setuptools">setuptools</a> and <a class="reference external" href="http://code.google.com/p/httplib2/">httplib2</a>. If you do not have them installed already you will want to:</p>
+<div class="highlight-python"><pre>$ curl -O http://peak.telecommunity.com/dist/ez_setup.py
+$ python ez_setup.py
+$ easy_install -U httplib2</pre>
+</div>
+<p>Now you can install couchquery:</p>
+<div class="highlight-python"><pre>$ easy_install couchquery</pre>
+</div>
+<p>The source code is publicly <a class="reference external" href="http://github.com/mikeal/couchquery">available on github</a>. Tickets should be logged on the <a class="reference external" href="http://github.com/mikeal/couchquery/issues">github issues tracker</a>.</p>
+<p>The process for code contributions is for users to <a class="reference external" href="http://help.github.com/forking/">fork the repository on github</a>, push modifications to their public fork, and then send <a class="reference external" href="http://github.com/mikeal">mikeal</a> a <a class="reference external" href="http://github.com/guides/pull-requests">pull request</a>.</p>
+</div>
+<div class="section" id="working-with-documents">
+<span id="id2"></span><h2>Working with Documents<a class="headerlink" href="#working-with-documents" title="Permalink to this headline">¶</a></h2>
+<p>Create a <a title="couchquery.Database" class="reference internal" href="#couchquery.Database"><tt class="xref docutils literal"><span class="pre">Database</span></tt></a> object for any CouchDB database you would like to interact with.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="s">&#39;http://localhost:5984/buckaroo&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a new document in the database.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">,</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;John Whorfin&#39;</span><span class="p">})</span>
+<span class="go">{u&#39;rev&#39;: u&#39;1-4198154595&#39;, u&#39;ok&#39;: True, u&#39;id&#39;: u&#39;c581bbc8fd32f49ecb2f8668ed71fe9b&#39;}</span>
+</pre></div>
+</div>
+<p>After creating a new document you are given the response dict from couch which includes the id of the document. You can also get documents by id.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">,</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;John Whorfin&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="go">&lt;class &#39;couchquery.Document&#39;&gt;</span>
+</pre></div>
+</div>
+<p><a title="couchquery.Document" class="reference internal" href="#couchquery.Document"><tt class="xref docutils literal"><span class="pre">Document</span></tt></a> objects are just slightly extended dict objects that provide slightly simpler attribute access.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&quot;John Worfin&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+<span class="go">&quot;John Worfin&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="s">&quot;The 8th Dimension&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;location&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;fakeattribute&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>When saving documents you must have the latest revision.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you do not have the latest revision you&#8217;ll get a <tt class="xref docutils literal"><span class="pre">CouchDBDocumentConflict</span></tt> exception.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">old_doc</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n-Identifier">&lt;module&gt;</span>
+  File <span class="nb">&quot;/Users/mikeal/Documents/git/couchquery/couchquery/__init__.py&quot;</span>, line <span class="m">271</span>, in <span class="n-Identifier">update</span>
+    <span class="k">raise</span> <span class="n">CouchDBException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+<span class="nc">couchquery.CouchDBException</span>: <span class="n-Identifier">{&quot;error&quot;:&quot;conflict&quot;,&quot;reason&quot;:&quot;Document update conflict.&quot;}</span>
+</pre></div>
+</div>
+<p><a title="couchquery.Database.create" class="reference internal" href="#couchquery.Database.create"><tt class="xref docutils literal"><span class="pre">Database.create()</span></tt></a>, <a title="couchquery.Database.update" class="reference internal" href="#couchquery.Database.update"><tt class="xref docutils literal"><span class="pre">Database.update()</span></tt></a> and <a title="couchquery.Database.delete" class="reference internal" href="#couchquery.Database.delete"><tt class="xref docutils literal"><span class="pre">Database.delete()</span></tt></a> all support bulk operations when <em class="xref">iterable</em> types are passed.</p>
+<blockquote>
+<dl class="docutils">
+<dt>db.create([{&#8216;type&#8217;:&#8217;red-lectroid&#8217;, &#8216;name&#8217;:&#8217;John Bigboote&#8217;},</dt>
+<dd>{&#8216;type&#8217;:&#8217;red-lectroid&#8217;, &#8216;name&#8217;:&#8221;John O&#8217;Connor&#8221;},])</dd>
+</dl>
+</blockquote>
+</div>
+<div class="section" id="creating-views">
+<span id="id3"></span><h2>Creating views<a class="headerlink" href="#creating-views" title="Permalink to this headline">¶</a></h2>
+<p>Futon is great, but I like to check my design documents in to version control so that I can push and pull changes to them from different contributors on github.</p>
+<p>With couchquery you can create a single directory for each design document where each subdirectory is a view in that design document. Inside the view directories you write a map.js and optional reduce.js file which contains your view functions:</p>
+<div class="highlight-python"><pre>$ du -a views
+32      views
+8       views/lectroidByType
+8       views/lectroidByType/map.js
+8       views/byType
+8       views/byType/map.js
+8       views/byType/reduce.js</pre>
+</div>
+<p>You can then &#8220;sync&#8221; this directory as a design document in your database.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">db</span><span class="o">.</span><span class="n">sync_design_doc</span><span class="p">(</span><span class="s">&#39;banzai&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&#39;views&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Now your directory of views is a design document in the database.</p>
+</div>
+<div class="section" id="working-with-views">
+<span id="id4"></span><h2>Working with views<a class="headerlink" href="#working-with-views" title="Permalink to this headline">¶</a></h2>
+<p>The couchquery views API is simple and straight forward provided you already have some understanding of how CouchDB views work.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&quot;red-lectroid&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The view API provides functions for each view that accept keyword arguments which are then converted in to query string arguments to the CouchDB HTTP View API.</p>
+<p>These view functions return <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> objects for each view result. <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> objects are one of the major highlights of couchquery. A RowSet object represents the <strong>result</strong> of a CouchDB query, it is not an abstraction of the query itself.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&quot;red-lectroid&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Iterating over a <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s">&quot;lectroid&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="s">&#39;lectroid&#39;</span>
+<span class="n">rows</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can use <a title="couchquery.RowSet.save" class="reference internal" href="#couchquery.RowSet.save"><tt class="xref docutils literal"><span class="pre">RowSet.save()</span></tt></a> to save all changes made to the values in the <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> provided the values are documents.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mf">0</span><span class="p">])</span>
+<span class="go">&lt;class &#39;couchquery.Document&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">])</span>
+<span class="go">&lt;class &#39;couchquery.RowSet&#39;&gt;</span>
+</pre></div>
+</div>
+<p>You can get a value in the <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> by position using list style syntax. Dictionary syntax allows you to get new <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> objects for the selection of rows in the result that matched the given key, this is useful when doing range queries because you can get subsets of the range without making additional queries to the server.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">startkey</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">endkey</span><span class="o">=</span><span class="p">{})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">red_lectroids</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">black_lectroids</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="s">&#39;black-lectroid&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>When applicable, properties like RowSet.offset are preserved and calculated for the new RowSet instance.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span><span class="o">.</span><span class="n">offset</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">red_lectroids</span><span class="o">.</span><span class="n">offset</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">black_lectorids</span><span class="o">.</span><span class="n">offset</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<p>RowSet objects only assume that values are Documents if they have _id attributes. If not, the value itself is returned by all these value APIs.</p>
+<p>RowSet objects also have convenient methods for working with the ids and keys, or more explicitly with values.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">&lt;type &#39;list&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">ids</span><span class="p">())</span>
+<span class="go">&lt;type &#39;list&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="go">&lt;type &#39;list&#39;&gt;</span>
+</pre></div>
+</div>
+<p>Another convenient method is <tt class="xref docutils literal"><span class="pre">items()</span></tt> which returns a list of (key, value) tuples for the keys and values in the view result.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rows</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s">&#39;lectroid&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="s">&#39;John&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">name</span>
+</pre></div>
+</div>
+<p>The contains operations are also customized. String values are checked against the id&#8217;s in the result while other objects are checked against the values.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;black-lectroid&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;John Parker&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">red_lectroids</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">red_lectroids</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">black_lectroids</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&#39;black-lectroid&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">black_lectroids</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">black_lectroids</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="couchquery-simple-couchdb-module">
+<h1><tt class="xref docutils literal"><span class="pre">couchquery</span></tt> &#8212; Simple CouchDB module.<a class="headerlink" href="#couchquery-simple-couchdb-module" title="Permalink to this headline">¶</a></h1>
+<dl class="attribute">
+<dt id="couchquery.debugging">
+<tt class="descclassname">couchquery.</tt><tt class="descname">debugging</tt><a class="headerlink" href="#couchquery.debugging" title="Permalink to this definition">¶</a></dt>
+<dd>Defaults to <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#True"><tt class="xref xref docutils literal"><span class="pre">True</span></tt></a>. When set to <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#True"><tt class="xref xref docutils literal"><span class="pre">True</span></tt></a> accessing most dynamic attributes will be
+validated with <em>HTTP HEAD</em> requests for the resources. This incurs additional delay in accessing most
+views for the first time but results in more accurate exceptions.</dd></dl>
+
+<dl class="class">
+<dt id="couchquery.Database">
+<em class="property">
+class </em><tt class="descclassname">couchquery.</tt><tt class="descname">Database</tt><big>(</big><em>uri</em><span class="optional">[</span>, <em>http</em><span class="optional">[</span>, <em>http_engine</em><span class="optional">[</span>, <em>cache</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.Database" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>uri</em> is the full http uri to the CouchDB database.</p>
+<p><em>http</em> can be an instance of <a title="(in httplib2 v0.4)" class="reference external" href="http://bitworking.org/projects/httplib2/doc/html/libhttplib2.html#httplib2.Http"><tt class="xref docutils literal"><span class="pre">httplib2.Http</span></tt></a> or an instance of one of the
+<tt class="xref docutils literal"><span class="pre">HttpClient</span></tt> subclasses. The default is to create an instance of <tt class="xref docutils literal"><span class="pre">Httplib2Client</span></tt>
+for the given uri.</p>
+<p><em>cache</em> is an argument specifically passed to <a title="(in httplib2 v0.4)" class="reference external" href="http://bitworking.org/projects/httplib2/doc/html/libhttplib2.html#httplib2.Http"><tt class="xref docutils literal"><span class="pre">httplib2.Http</span></tt></a>, it is special cased for reverse
+compatibility with an older version of this API.</p>
+<dl class="method">
+<dt id="couchquery.Database.get">
+<tt class="descname">get</tt><big>(</big><em>_id</em><big>)</big><a class="headerlink" href="#couchquery.Database.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a single document by <em>_id</em> from the database.</p>
+<p>Returns a <a title="couchquery.Document" class="reference internal" href="#couchquery.Document"><tt class="xref docutils literal"><span class="pre">Document</span></tt></a> object for the given <em>_id</em> in the database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.Database.create">
+<tt class="descname">create</tt><big>(</big><em>doc</em><span class="optional">[</span>, <em>all_or_nothing</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.Database.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a document. Accepts any object that can be converted in to a dict.
+If multiple documents are passed they are handed off to the bulk document handler.</p>
+<p>Uses the HTTP POST interface for creating documents in CouchDB. If <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#list"><tt class="xref docutils literal"><span class="pre">list()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#tuple"><tt class="xref docutils literal"><span class="pre">tuple()</span></tt></a> or
+<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> types are passed then the creation is handed off to
+<tt class="xref docutils literal"><span class="pre">Database.bulk()</span></tt> with <em>all_or_nothing</em> passed as well. <em>all_or_nothing</em> defaults to
+<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#False"><tt class="xref xref docutils literal"><span class="pre">False</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.Database.update">
+<tt class="descname">update</tt><big>(</big><em>doc</em><span class="optional">[</span>, <em>all_or_nothing</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.Database.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a document. Accepts any object that can be converted in to a dict.
+If multiple documents are passed they are handed off to the bulk document handler.</p>
+<p>Uses the HTTP PUT interface for updating documents in CouchDB.  If <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#list"><tt class="xref docutils literal"><span class="pre">list()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#tuple"><tt class="xref docutils literal"><span class="pre">tuple()</span></tt></a>,
+<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> types are passed then the update is handed off to
+<tt class="xref docutils literal"><span class="pre">Database.bulk()</span></tt> with <em>all_or_nothing</em> passed as well. <em>all_or_nothing</em> defaults to
+<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#False"><tt class="xref xref docutils literal"><span class="pre">False</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.Database.delete">
+<tt class="descname">delete</tt><big>(</big><em>doc</em><span class="optional">[</span>, <em>all_or_nothing</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.Database.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a document. Accepts any object that can be converted in to a dict.
+Document/s must contain _id and _rev properties.
+If multiple documents are passed they are removed using the bulk document API.</p>
+<p>Uses the HTTP DELETE interface for updating documents in CouchDB.  If <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#list"><tt class="xref docutils literal"><span class="pre">list()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#tuple"><tt class="xref docutils literal"><span class="pre">tuple()</span></tt></a>,
+<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> types are passed then the delete is handed off to
+<tt class="xref docutils literal"><span class="pre">bulk()</span></tt> with <em>all_or_nothing</em> passed as well. <em>all_or_nothing</em> defaults to
+<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#False"><tt class="xref xref docutils literal"><span class="pre">False</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.Database.save">
+<tt class="descname">save</tt><big>(</big><em>doc</em><span class="optional">[</span>, <em>all_or_nothing</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.Database.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smart save method. Hands off to bulk, create, or update.</p>
+<p>If <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#list"><tt class="xref docutils literal"><span class="pre">list()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#tuple"><tt class="xref docutils literal"><span class="pre">tuple()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> types are passed
+they are handed off to <tt class="xref docutils literal"><span class="pre">Database.bulk()</span></tt>. If the object represents a single document then it is
+checked for the <em>_id</em> item and if accessible then it is passed to <cite>update</cite> if not then it is sent
+to <cite>create</cite>. <em>all_or_nothing</em> defaults to <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#False"><tt class="xref xref docutils literal"><span class="pre">False</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.Database.sync_design_doc">
+<tt class="descname">sync_design_doc</tt><big>(</big><em>name</em>, <em>path</em><big>)</big><a class="headerlink" href="#couchquery.Database.sync_design_doc" title="Permalink to this definition">¶</a></dt>
+<dd>Sync a directory structure with proper map.js and reduce.js files at <cite>path</cite> as a desing document
+named <cite>name</cite>. Document above in <a class="reference internal" href="#creating-views"><em>Creating views</em></a></dd></dl>
+
+<dl class="attribute">
+<dt id="couchquery.Database.views">
+<tt class="descname">views</tt><a class="headerlink" href="#couchquery.Database.views" title="Permalink to this definition">¶</a></dt>
+<dd>Instance of <a title="couchquery.Views" class="reference internal" href="#couchquery.Views"><tt class="xref docutils literal"><span class="pre">Views</span></tt></a> for this CouchDB Database.</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="couchquery.createdb">
+<tt class="descclassname">couchquery.</tt><tt class="descname">createdb</tt><big>(</big><em>db</em><big>)</big><a class="headerlink" href="#couchquery.createdb" title="Permalink to this definition">¶</a></dt>
+<dd>Accepts either an instance of <a title="couchquery.Database" class="reference internal" href="#couchquery.Database"><tt class="xref docutils literal"><span class="pre">Database</span></tt></a> or a uri to the database. Will cause an HTTP PUT
+request to create the new database, validate the response code, and return you decoded response body.</dd></dl>
+
+<dl class="function">
+<dt id="couchquery.deletedb">
+<tt class="descclassname">couchquery.</tt><tt class="descname">deletedb</tt><big>(</big><em>db</em><big>)</big><a class="headerlink" href="#couchquery.deletedb" title="Permalink to this definition">¶</a></dt>
+<dd>Accepts either an instance of <a title="couchquery.Database" class="reference internal" href="#couchquery.Database"><tt class="xref docutils literal"><span class="pre">Database</span></tt></a> or a uri to the database. Will cause an HTTP DELETE
+request to remove database, validate the response code, and return you decoded response body.</dd></dl>
+
+<dl class="class">
+<dt id="couchquery.Document">
+<em class="property">
+class </em><tt class="descclassname">couchquery.</tt><tt class="descname">Document</tt><big>(</big><span class="optional">[</span><em>*args</em><span class="optional">[</span>, <em>**kwargs</em><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.Document" title="Permalink to this definition">¶</a></dt>
+<dd>Subclass of <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/stdtypes.html#dict"><tt class="xref docutils literal"><span class="pre">dict()</span></tt></a>. __setattr__, __getattr__ and __delattr__ are linked to __setitem__,
+__getitem__ and __delitem__ respectively to support a shorter attribute access and manipulation
+syntax.</dd></dl>
+
+<dl class="class">
+<dt id="couchquery.Views">
+<em class="property">
+class </em><tt class="descclassname">couchquery.</tt><tt class="descname">Views</tt><big>(</big><em>db</em><big>)</big><a class="headerlink" href="#couchquery.Views" title="Permalink to this definition">¶</a></dt>
+<dd><p>CouchDB Views API.</p>
+<p>Requires a <a title="couchquery.Database" class="reference internal" href="#couchquery.Database"><tt class="xref docutils literal"><span class="pre">Database</span></tt></a> instance.</p>
+<p>Supports dynamic attribute access for design document containers by name.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">bonzai</span><span class="p">)</span>
+<span class="go">&lt;class &#39;couchquery.Design&#39;&gt;</span>
+</pre></div>
+</div>
+<p>The design document is checked to be valid via an HTTP HEAD request if <a title="couchquery.debugging" class="reference internal" href="#couchquery.debugging"><tt class="xref docutils literal"><span class="pre">debugging</span></tt></a> is set.</p>
+<dl class="method">
+<dt id="couchquery.Views.all">
+<tt class="descname">all</tt><big>(</big><span class="optional">[</span><em>include_docs</em><span class="optional">[</span>, <em>startkey</em><span class="optional">[</span>, <em>endkey</em><span class="optional">[</span>, <em>keys</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.Views.all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface for the CouchDB _all_docs HTTP REST API.</p>
+<p>include_docs defaults to <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#True"><tt class="xref xref docutils literal"><span class="pre">True</span></tt></a>. keys, startkey, and endkey all default to <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#None"><tt class="xref xref docutils literal"><span class="pre">None</span></tt></a> and
+are not used unless set to a value other than None.</p>
+<p>Returns a <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> instance for the returned results. The values in the <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> are
+set to  the docuemnts when include_docs is <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#True"><tt class="xref xref docutils literal"><span class="pre">True</span></tt></a> to make the returned result closer to a
+standard view result.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="couchquery.Design">
+<em class="property">
+class </em><tt class="descclassname">couchquery.</tt><tt class="descname">Design</tt><big>(</big><em>db</em>, <em>_id</em><big>)</big><a class="headerlink" href="#couchquery.Design" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents access to a given Design document. Part of the View access API document in
+<a class="reference internal" href="#working-with-views"><em>Working with views</em></a>.</p>
+<p>This object has customized attribute access which returns a <a title="couchquery.View" class="reference internal" href="#couchquery.View"><tt class="xref docutils literal"><span class="pre">View</span></tt></a> object for a view
+in the design document of the given <cite>name</cite>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">bonzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">)</span>
+<span class="go">&lt;class &#39;couchquery.View&#39;&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="couchquery.View">
+<em class="property">
+class </em><tt class="descclassname">couchquery.</tt><tt class="descname">View</tt><big>(</big><em>db</em>, <em>_id</em><big>)</big><a class="headerlink" href="#couchquery.View" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#callable"><tt class="xref docutils literal"><span class="pre">callable()</span></tt></a> class which provides access to a given view using the CouchDB HTTP View API.</p>
+<dl class="method">
+<dt>
+<tt class="descname">__call__([**kwargs]):</tt></dt>
+<dd><p>Queries a CouchDB view.</p>
+<p>If <cite>keys</cite> is in kwargs this uses the HTTP POST API, if <cite>keys</cite> is not in kwargs the HTTP GET API
+is used.</p>
+<p>Additional keyword arguments are passed as arguments to the noted HTTP API. All arguments
+except <cite>key_docid</cite>, <cite>startkey_docid</cite>, <cite>endkey_id</cite> and <cite>stale</cite> will be JSON serialized.</p>
+<p>Returns a <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> object for the returned result.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="couchquery.RowSet">
+<em class="property">
+class </em><tt class="descclassname">couchquery.</tt><tt class="descname">RowSet</tt><big>(</big><em>db</em>, <em>rows</em><span class="optional">[</span>, <em>offset</em><span class="optional">[</span>, <em>total_rows</em><span class="optional">[</span>, <em>parent</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.RowSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>View result abstraction. Supports bulk edits, and a variety of other features documented in
+<a class="reference internal" href="#working-with-views"><em>Working with views</em></a>.</p>
+<p>Iterating over a RowSet will iterate over the values in the view result. Values that are documents
+will be turned in to <a title="couchquery.Document" class="reference internal" href="#couchquery.Document"><tt class="xref docutils literal"><span class="pre">Document</span></tt></a> instances.</p>
+<dl class="method">
+<dt id="couchquery.RowSet.ids">
+<tt class="descname">ids</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.ids" title="Permalink to this definition">¶</a></dt>
+<dd>Returns a list of all ids in the view result.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.keys" title="Permalink to this definition">¶</a></dt>
+<dd>Returns a list of all the keys in the view result.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.values" title="Permalink to this definition">¶</a></dt>
+<dd>Returns a list of all the values in the view result.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.items">
+<tt class="descname">items</tt><big>(</big><span class="optional">[</span><em>key</em><span class="optional">[</span>, <em>value</em><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.RowSet.items" title="Permalink to this definition">¶</a></dt>
+<dd>Return a list of (key, value) tuples. By default <cite>key</cite> is <cite>&#8220;key&#8221;</cite> and <cite>value</cite> is <cite>&#8220;value&#8221;</cite> which
+means it will return a pair of <cite>(row[&#8216;key&#8217;], row[&#8216;value&#8217;],)</cite> for every <cite>row</cite> in the view result.</dd></dl>
+
+<dl class="attribute">
+<dt id="couchquery.RowSet.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#couchquery.RowSet.offset" title="Permalink to this definition">¶</a></dt>
+<dd>Offset for the rows in the view result relative to all keys in the view.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><em>obj</em><span class="optional">[</span>, <em>key</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.RowSet.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd>Returns the offset for the given object. <cite>key</cite> defaults to <cite>&#8220;value&#8221;</cite> which means that obj is
+compared against the values in the rows. If the object exists multiple times the offset for the
+first occurence will be returned.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.save">
+<tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.save" title="Permalink to this definition">¶</a></dt>
+<dd>Save all the change made to the values in this RowSet. Sends this RowSet instance to
+<tt class="xref docutils literal"><span class="pre">Database.bulk()</span></tt>.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.delete" title="Permalink to this definition">¶</a></dt>
+<dd>Remove all the values in this <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> from the database. Sends this RowSet instance to
+<a title="couchquery.Database.delete" class="reference internal" href="#couchquery.Database.delete"><tt class="xref docutils literal"><span class="pre">Database.delete()</span></tt></a>.</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">couchquery &#8211; A Python library for CouchDB</a><ul>
+<li><a class="reference external" href="#installation">Installation</a></li>
+<li><a class="reference external" href="#working-with-documents">Working with Documents</a></li>
+<li><a class="reference external" href="#creating-views">Creating views</a></li>
+<li><a class="reference external" href="#working-with-views">Working with views</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#couchquery-simple-couchdb-module"><tt class="docutils literal"><span class="pre">couchquery</span></tt> &#8212; Simple CouchDB module.</a></li>
+</ul>
+
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/index.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li><a href="">couchquery v0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Mikeal Rogers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>
