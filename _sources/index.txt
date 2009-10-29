@@ -46,7 +46,8 @@ Put simply, CouchDB invokes a shell call to the configured script and writes JSO
 couchdb-wsgi provides a WSGI compliant adapter for this external process interface so that you can run wsgi applications and modern Python web frameworks.
 
 Example::
-
+   
+   #!/usr/bin/python
    import couchdb_wsgi
    
    def application(environ, start_response):
