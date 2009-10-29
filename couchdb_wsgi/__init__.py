@@ -11,7 +11,7 @@ except:
     
 import urlencoding
 
-class CouchDBWSGIHandler(object):
+class CouchDBWSGIRequestHandler(object):
     def __init__(self, request):
         self.request = request
         self.start_response_called = False
@@ -82,7 +82,7 @@ class CouchDBWSGIHandler(object):
             line = sys.stdin.readline()
     
     def handle_request(self, request):
-        r = CouchDBWSGIHandler(request)
+        r = CouchDBWSGIRequestHandler(request)
         try:
             response = self.application(r.environ, r.start_response)
         except:
