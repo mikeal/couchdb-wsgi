@@ -5,7 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
-CLEANUP       = "/Users/mikeal/Documents/git/couchquery/cleanup.py"
+CLEANUP       = "/Users/mikeal/Documents/git/couchdb-wsgi/cleanup.py"
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -62,9 +62,9 @@ qthelp:
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in dirbuild/qthelp, like this:"
-	@echo "# qcollectiongenerator dirbuild/qthelp/couchquery.qhcp"
+	@echo "# qcollectiongenerator dirbuild/qthelp/couchdb-wsgi.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile dirbuild/qthelp/couchquery.qhc"
+	@echo "# assistant -collectionFile dirbuild/qthelp/couchdb-wsgi.qhc"
 
 latex:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) dirbuild/latex
