@@ -10,5 +10,5 @@ import django.core.handlers.wsgi
 
 application = django.core.handlers.wsgi.WSGIHandler()
 
-couchdb_wsgi.CouchDBWSGIParser(application).run()
+couchdb_wsgi.CouchDBWSGIHandler(application).run()
 

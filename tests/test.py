@@ -9,4 +9,4 @@ def application(environ, start_response):
     start_response('200 Ok', [('content-type','text/plain',)])
     return 'Testing'
 
-couchdb_wsgi.CouchDBWSGIParser(application).run()
+couchdb_wsgi.CouchDBWSGIHandler(application).run()

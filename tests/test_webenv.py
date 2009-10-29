@@ -13,4 +13,4 @@ class ApplicationTwo(RestApplication):
 application = ApplicationOne()
 application.add_resource('two', ApplicationTwo())
 
-couchdb_wsgi.CouchDBWSGIParser(application).run()
+couchdb_wsgi.CouchDBWSGIHandler(application).run()

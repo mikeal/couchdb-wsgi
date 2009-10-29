@@ -71,7 +71,7 @@ class CouchDBWSGIHandler(object):
         self.headers = dict(response_headers)
         self.start_response_called = True
 
-class CouchDBWSGIParser(object):
+class CouchDBWSGIHandler(object):
     def __init__(self, application):
         self.application = application
         
