@@ -40,7 +40,7 @@ from setuptools import setup, find_packages
 desc = """WSGI compliant handler for CouchDB external processes."""
 summ = """WSGI compliant handler for CouchDB external processes."""
 
-PACKAGE_NAME = "couchdb_wsgi"
+PACKAGE_NAME = "couchdb-wsgi"
 PACKAGE_VERSION = "0.1"
 
 setup(name=PACKAGE_NAME,
@@ -49,7 +49,7 @@ setup(name=PACKAGE_NAME,
       long_description=summ,
       author='Mikeal Rogers, Mozilla',
       author_email='mikeal.rogers@gmail.com',
-      url='http://github.com/mikeal/couchdb-wsgi',
+      url='http://mikeal.github.com/couchdb-wsgi',
       license='http://www.mozilla.org/MPL/',
       packages=find_packages(exclude=['test']),
       include_package_data=True,
