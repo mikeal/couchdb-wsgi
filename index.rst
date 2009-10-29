@@ -39,7 +39,7 @@ The process for code contributions is for users to `fork the repository on githu
 CouchDB External Proccesses
 ---------------------------
 
-CouchDB includes support for assigning an external process handler for a given REST namespace for CouchDB databases. `This is documented on the CouchDB wiki <http://wiki.apache.org/couchdb/ExternalProcesses>`_.
+CouchDB includes support for assigning an external process handler to a given REST namespace in CouchDB databases. `This is documented on the CouchDB wiki <http://wiki.apache.org/couchdb/ExternalProcesses>`_.
 
 Put simply, CouchDB invokes a shell call to the configured script and writes JSON request objects to stdin and takes JSON response objects in stdout. 
 
@@ -57,6 +57,8 @@ Example::
 
 Using with Django
 -----------------
+
+Django's WSGI support is detailed `in their documentation for Apache support via mod_wsgi <http://docs.djangoproject.com/en/dev/howto/deployment/modwsgi/#basic-configuration>`_.
 
 Example::
 
@@ -80,14 +82,15 @@ Example::
 
 .. class:: CouchDBWSGIHandler(application)
 
-   *application* is WSGI application callable.
+   *application* is a WSGI application callable.
+   
+   .. attribute:: application
+   
+      WSGI application callable passed during instantiation.
    
    .. method:: run()
       
       Starts the handler.
-      
-      JSON request objects will be parsed from stdin and JSON response objects sent to stdout. WSGI
-      compliant objects will be converted to and from the `self.application`.
       
    .. method:: requests()
    
@@ -95,8 +98,32 @@ Example::
    
    .. method:: handle_request(request)
    
-      Creates a :cls:`CouchDBWSGIRequestHandler` instance for the given request and calls the application
-      callable with :prop:`CouchDBWSGIRequestHandler.environ` and :meth:`CouchDBWSGIRequestHandler.start_response`.
+      Creates a :class:`CouchDBWSGIRequest` instance for the given request and calls the application
+      callable with :attr:`CouchDBWSGIRequest.environ` and :meth:`CouchDBWSGIRequest.start_response`.
       
       Method also converts the response and request handler to a CouchDB external process JSON object.
+
+.. class:: CouchDBWSGIRequest(request)
+
+   *request* is a request dictionary from CouchDB
+   
+   .. attribute:: request
+   
+      The request dictionary passed during instantiation.
+   
+   .. attribute:: environ
+   
+      Property. WSGI environ dictionary for this request.
+   
+   .. method:: start_response(status, headers)
+   
+      WSGI compliant start_response method.
+      
+   .. attribute:: code
+   
+      Status code integer parsed from the status string sent to :meth:`start_response`.
+      
+   .. attribute:: headers
+   
+      Dictionary parsed form the headers array sent to :meth:`start_response`.
    
