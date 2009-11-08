@@ -23,6 +23,8 @@ class CouchDBWSGIRequest(object):
         ###--- CouchDB variables ---###
         environ['couchdb.request'] = cdict
         environ['couchdb.info'] = cdict['info']
+        if 'couchdb.document' in cdict:
+            environ['couchdb.document'] = cdict['couchdb.document']
         
         ###--- Environ variables from CGI ---###
         if cdict['body'] == 'undefined':
