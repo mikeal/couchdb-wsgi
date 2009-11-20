@@ -47,9 +47,16 @@ class CouchDBWSGIRequest(object):
         environ['PATH_INFO'] = path
         
         if cdict['query']:
-            environ['QUERY_STRING'] = urlencoding.compose_qs(cdict['query'])        
+            environ['QUERY_STRING'] = urlencoding.compose_qs(cdict['query'])    
+        else:
+            environ['QUERY_STRING'] = None
+            
+        if environ['QUERY_STRING'] is None:
+            environ['QUERY_STRING'] = ''
         
         # Unclear whether this works with port 80
+        if ':' not in environ['HTTP_HOST']:
+            environ['HTTP_HOST'] += ':80'
         environ['SERVER_NAME'], environ['SERVER_PORT'] = environ['HTTP_HOST'].split(':')
         environ['SERVER_PORT'] = int(environ['SERVER_PORT'])
         # Faking, version isn't specified yet
