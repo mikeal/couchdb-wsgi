@@ -1,5 +1,7 @@
 import sys
 import traceback
+import uuid
+from threading import Thread
 from StringIO import StringIO
 
 try:
@@ -12,9 +14,10 @@ except:
 import urlencoding
 
 class CouchDBWSGIRequest(object):
-    def __init__(self, request):
+    def __init__(self, request, threading=False):
         self.request = request
         self.start_response_called = False
+        self.threading = threading
         
     @property
     def environ(self):
@@ -90,17 +93,33 @@ class CouchDBWSGIHandler(object):
             yield json.loads(line)
             line = sys.stdin.readline()
     
-    def handle_request(self, request):
-        r = CouchDBWSGIRequest(request)
+    def _handle_request(self, r):
         try:
             response = self.application(r.environ, r.start_response)
         except:
             r.code = 500
             response = traceback.format_exc()
             r.headers = {'content-type':'text/plain'}
-            
-        sys.stdout.write(json.dumps({'code':r.code, 'body':''.join(response), 'headers':r.headers})+'\n')
+        return r, response
+        
+    def _thread_handler(self, r):
+        r, response = self._handle_request(r)
+        sys.stdout.write(json.dumps({'code':r.code, 'body':''.join(response), 'headers':r.headers, 'session':r.couchdb_session})+'\n')
         sys.stdout.flush()
+            
+    def handle_request(self, request):
+        r = CouchDBWSGIRequest(request)
+        if self.threading is True:
+            r.couchdb_session = str(uuid.uuid1())
+            sys.stdout.write(json.dumps(["defer", r.couchdb_session]))
+            sys.stdout.flush()
+            t = Thread(target=self._thread_handler, args=[r])
+            t.start()
+        else:
+            r, response = self._handle_request(r)            
+            sys.stdout.write(json.dumps({'code':r.code, 'body':''.join(response), 'headers':r.headers})+'\n')
+            sys.stdout.flush()
+        
     
     def run(self):
         for req in self.requests():
