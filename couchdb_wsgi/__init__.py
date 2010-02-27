@@ -30,7 +30,7 @@ class CouchDBWSGIRequest(object):
         if cdict['body'] == 'undefined':
             cdict['body'] = ''
         environ = {}
-        environ['REQUEST_METHOD'] = cdict['verb']
+        environ['REQUEST_METHOD'] = cdict['method']
         environ['CONTENT_LENGTH'] = len(cdict['body'])
         
         for header, value in cdict['headers'].items():
