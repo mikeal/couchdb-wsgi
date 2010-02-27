@@ -29,7 +29,6 @@ class CouchDBWSGIRequest(object):
         ###--- Environ variables from CGI ---###
         if cdict['body'] == 'undefined':
             cdict['body'] = ''
-        environ = {}
         environ['REQUEST_METHOD'] = cdict['method']
         environ['CONTENT_LENGTH'] = len(cdict['body'])
         
